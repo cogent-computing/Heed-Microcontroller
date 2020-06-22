@@ -1,0 +1,47 @@
+{
+  "devices": {
+    [Device 1]:[Device 1 Mac address ex: "00:00:00:00:00:00"]
+    [Device 2],": [Device 2 Mac address ex:"00:00:00:00:00:00"]
+  },
+  "allocation": {
+    "System_Data": [
+      "Victron_VenusGX"
+    ],
+    [Device Group 1]: [
+      [Device 1],
+      [Device 2],
+    ],
+
+  },
+
+  "sql_user": [postgresql user],
+  "sql_pw": [postgresql password],
+  "sql_db": [postgresql db],
+  "sql_addr": [postgresql address],
+  "sql_port": [postgresql port],
+  "sftp_location": [sftp_address],
+  "sftp_port": [sftp port],
+  "sftp_username": [sftp user],
+  "sftp_password": [sftp password],
+  "sftp_key_location": [sftp key location],
+  "sftp_directory": [sftp directory],
+  "sql_aggregate": "aggregated_energy_data",
+  "sql_decision": "decision_store",
+  "sql_forecast": "forecasted_energy_data",
+  "sql_preference": "preference_users",
+  "sql_raw_energy": "raw_energy_data",
+  "sql_raw_state": "raw_state_data",
+  "telnet_addr": [telnet_addr],
+  "telnet_port": [telnet_port],
+  "mesh_user": [sftp_server_user],
+  "mesh_pw": [sftp_server_pw],
+  "mqtt_address": [mqtt_remote_address],
+  "mqtt_port": [port],
+  "mqtt_username": [username],
+  "mqtt_password": [password],
+  "run_type": ["WebLogger"/"LocalLogger" depending on how it's run],
+  "sampling_major": [Generic Sampling time for other componetns],
+  "sampling_logger": [Logger Sampling time],
+  "sampling_dev_v1": [Web Sampling time],
+  "sampling_dev_v2": [Local Sampling time]
+}

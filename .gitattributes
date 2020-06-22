@@ -1,0 +1,3 @@
+/config/private_sftp.ppk export-ignore
+/config/runner_config.json export-ignore
+/config/private_sftp_rpi.ppk export-ignore

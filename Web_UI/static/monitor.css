@@ -1,0 +1,170 @@
+@font-face {
+    font-family: patopian;
+    src: url('patopian_1986.ttf');
+}
+
+@font-face {
+    font-family: stroke-7;
+    src: url('pe-icon-7-stroke.ttf');
+}
+
+:root {
+    --main-bg: #fbf9f6;
+    --lcd-bg: #d8e0d0;
+    --lcd-fg: #48a6f7;
+    --raised-bg: white;
+    --select-fg: #48a6f7;
+    --main-font-size: 2.45vw;
+    
+    --battery-outline: 0.2vw;
+    --battery-offset: calc(var(--battery-outline)*-1);
+    --battery-cap: black;
+    --battery-height: 7vw;
+    --battery-width: 14vw; /* don't use calc, queried in JS */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+
+body {
+    font-family: sans-serif;
+    font-size: var(--main-font-size);
+    color: #000000;
+    /* text-shadow: 1px 0px 2px #b98609; */
+    height: 100%;
+    margin: 4px;
+    background: var(--main-bg);
+}
+
+div { display: flex; }
+
+.button {
+    height: 3vw; width: 3vw; font-family: stroke-7;
+    align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.button, .info { align-self: center; font-size: var(--main-font-size); }
+.symbol { font-family: stroke-7; justify-content: center; }
+[status="alert"] { color: red; }
+[status="ok"] { color: #4ee64e; }
+[status="none"] { color: lightgray; }
+
+.select { order: -1; color: var(--select-fg); }
+.highlight { color: var(--select-fg); }
+.stealth { visibility: hidden; }
+
+.meter { font-family: patopian; text-shadow: 1px 1px 3px; }
+
+div.text { align-items: baseline; }
+div.center { align-self: center; }
+div.col { flex-direction: column; }
+div.spacing { padding: 0.5vw; }
+
+.raised {
+    border-style: outset; border-radius: 0.3em; background: white; border-color: lightgray;
+    user-select: none;
+}
+.lowered { border-style: inset; border-radius: 0.3em; background: #f2efea; border-color: lightgray; }
+
+#content { flex: 1 1 auto; padding: 0.5vw; }
+
+/** Priority CSS, left pane */
+#priority-pane {
+    flex-direction: column; align-items: center;
+    border-right: 4px inset; padding-right: 10px; border-color: #506d93;
+    height: calc(100vh - 3vw);
+}
+#priorities {
+    flex-direction: column; width: 100%;
+    overflow-y: hidden;
+}
+
+div.priority { width: 100%; margin-top: 1vw; align-items: center; }
+div.priority-detail {
+    width: 100%; margin-right: 10px; align-items: center; padding: 0.5vw 0 0.5vw 0;
+    color: var(--raised-bg); background-color: #7aa5ca; white-space: nowrap;
+}
+div.priority[data-id*="nursery 1" i]>div.priority-detail { background-color: #ff7400; }
+div.priority[data-id*="nursery 2" i]>div.priority-detail { background-color: #009999; }
+div.priority[data-id*="playground" i]>div.priority-detail { background-color: #00cc00; }
+
+div.rank { width: 3em; flex-shrink: 0; }
+div.load-name { width: 100%; }
+div.load-type { width: 4vw; justify-content: center; font-family: stroke-7; }
+
+/** Metric CSS, right pane */
+#status {
+    flex: 1 1 auto; flex-direction: column; align-items: center; padding-left: 10px;
+}
+
+#status-display { flex-direction: column; width: 100%; height: 100%; }
+
+#bar { width: 100%; justify-content: space-between; margin-bottom: 3vw; }
+
+#settings { height: max-content; }
+div.toolbar { height: 2.7vw; font-size: 2vw; margin-right: 0.5vw; align-items: center; }
+div.toolbar>span { width: 2.4vw; text-align: center; }
+
+#language {
+    flex-direction: column; width: 7em; align-items: stretch; align-self: baseline;
+    font-size: 2vw;
+}
+div.lang { justify-content: center; }
+
+/** Battery indicators */
+#charge-status { margin-left: 8vw; }
+#battery { align-items: center; font-size: calc(var(--battery-height)*0.7); }
+#battery-terminal {
+    width: 0.8vw; height: calc(var(--battery-height)*0.6);
+    border: var(--battery-outline) solid;
+    border-right: none;
+    margin-right: var(--battery-offset);
+    z-index: 1;
+    background: var(--battery-cap);
+}
+#battery-body {
+    align-items: center; justify-content: center; padding: 0.4vw;
+    height: var(--battery-height); width: var(--battery-width);
+    border-radius: 0.8vw; border: var(--battery-outline) solid;
+    background: lightgray;
+    box-shadow: 0 0 3px 0px;
+}
+#battery-inner {
+    width: 100%; height: 100%; background-color: var(--main-bg);
+}
+#charge { width: 100%; justify-content: flex-end; align-items: flex-end; }
+#charging { flex-direction: column; font-size: 1.6em; margin-left: -0.5vw; }
+
+/* Metrics */
+
+#metrics {
+    flex-direction: column; width: 100%;
+    border-width: 3px; border-radius: 6px;
+}
+
+div.metric-detail { width: 100%; margin-bottom: 10px; }
+
+span.metric {
+    flex: 1 0 auto;
+    width: 4em;
+    text-align: right; padding-right: 5px;
+    margin: 0 10px 0 10px; 
+    color: var(--lcd-fg);
+    border: 2px inset lightgray;
+    border-radius: 6px;
+    background: var(--lcd-bg);
+}
+
+#select-metric {
+    display: none; flex-direction: column; font-size: 0.9em; width: 100%;
+}
+div.smetric { align-items: center; width: 100%; padding: 5px 0px 5px 0px; }
+
+#info-metric {
+    display: none; flex-direction: column; font-size: 0.9em;
+}
+
+#bottom-bar { justify-content: flex-end; width: 100%; }
+#help { justify-content: center; align-self: flex-end; width: 6em; margin-right: 0px; }
+#help-display { display: none; flex-direction: column; font-size: 0.65em; width: 100%; height: 100%; }
+#topics { margin-top: 1vw; }

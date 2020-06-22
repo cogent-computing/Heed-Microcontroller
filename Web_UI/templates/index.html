@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The HEED Project – Humanitarian Engineering and Energy for Displacement – Control Interface</title>
+  <link rel='icon' href="/static/favicon.ico" type='image/x-icon' >
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+  <script src="/static/jquery-3.4.1.min.js"></script>
+  <script src="/static/jquery-ui.min.js"></script>
+  <script src="/static/conf.js"></script>
+  <script src="/static/i8n.js"></script>
+  <script src="/static/monitor.js"></script>
+  <link href="/static/monitor.css" rel="stylesheet">
+  <title>Microgrid status</title>
+</head>
+<body>
+<div id="content">
+  <div id="priority-pane">
+    <div id="priority-title" class="text">
+      <span id="priority-lock" class="symbol highlight">&#xe63f;</span>
+      <span data-i="Priority Level"></span>
+    </div>
+    <div id="priorities">
+    </div>
+  </div>
+  <div id="status">
+    <div id="status-display">
+      <div id="bar">
+        <span id="comms" class="symbol">&#xe613;</span>
+        <div id="charge-status">
+          <div id="battery">
+            <div id="battery-terminal"></div>
+            <div id="battery-body" class="battery">
+              <div id="battery-inner">
+                <div id="charge">35%</div>
+              </div>
+            </div>
+          </div>
+          <div id="charging" class="symbol">&#xe650;
+          </div>
+        </div>
+        <div id="settings">
+          <div class="toolbar raised symbol">
+            <span id="refresh">&#xe6c2;</span>
+            <span id="expand">&#xe658;</span>
+          </div>
+          <div id="language" class="raised"></div>
+        </div>
+      </div>
+      <div id="metrics">
+      </div>
+      <div id="select-metric" class="raised">
+      </div>
+      <div id="info-metric" class="raised">
+      </div>
+      <div id="help-display" class="raised">
+        <div id="metric-help" class="col"></div>
+        <div id="topics">
+          <div id="help-prio">
+            <div class="col spacing">
+              <div class="symbol highlight">&uarr;</div>
+              <div <div class="priority-detail text raised">
+                <div class="load-type">&#xe69a</div>
+                <div class="load-name" data-i="Nursery 1 - Sockets">Nursery 1</div>
+              </div>
+              <div class="symbol">&darr;</div>
+            </div>
+            <div class="center" data-i="_HELP_PRIO"></div>
+          </div>
+          <div id="help-metric">
+            <div class="mpick raised button">&#xe636;</div>
+            <div class="center spacing" data-i="_HELP_METRIC"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="bottom-bar">
+      <div id="help" data-i="Help" class="toolbar raised">
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
