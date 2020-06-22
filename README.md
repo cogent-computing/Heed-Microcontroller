@@ -102,11 +102,12 @@ The unittests can be found under the [test](tests) directory. THe business logic
 
 ## Related Research and Publications 
 
-[To be followed]
+ - To be followed
 
 ##Contributors and Development
 
 * WebUI Developed by [Scene](https://scene.communitygithub) and [Iain Hogg](https://github.com/iain-dev)
+* Documentation and support from [MeshPower](https://www.meshpower.co.uk/) on integrating with their system.
 * Microgrid Controller Developed at Coventry University by the Cogentee Group
 
 ## License
