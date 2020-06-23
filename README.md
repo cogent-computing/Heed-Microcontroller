@@ -75,6 +75,184 @@ If a non-English translation is missing, the UI will display the text prefaced b
 (rw) Priority Level.
 
 
+# Back-End API Description
+
+**Reading the System State V1**
+----
+  Returns the current charging and battery state, parameters of total consumption and predicted consumption vs available.
+
+* **URL**
+
+  /read_state/v1
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+
+   None
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```json
+        {
+          "battery state of charge (percentage)": 80.7,
+          "battery energy available (kwh)": 6.45,
+          "system state (charging)": true,
+          "power consumption (kw)": 0.5,
+          "solar pv power generation (kw)": 1.2,
+          "solar pv energy generation 24h (kwh)": 6.7,
+          "solar pv energy generation 30days (kwh)": 191.4,
+          "energy consumption 24h (kwh)": 3.7,
+          "energy consumption 30days (kwh)": 90.4
+        }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 404 NOT FOUND <br />
+    **Content:** `{"error" : "No Data is currently available."}`
+
+* **Sample Call:**
+
+  ```javascript
+     $.ajax({ url: "/read_state/v1",
+    dataType: "json",
+    type : "GET",
+    success : function(r) {
+      console.log(r);
+    } 
+    });
+  ```
+
+**Reading the System State V2**
+----
+  Returns the current charging and battery state, parameters of total consumption and predicted consumption vs available.
+
+* **URL**
+
+  /read_state/v2
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+
+   None
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```json
+    { 
+       "system_state":[
+            [80.7,"%","Battery State of Charge"],
+            [6.45,"kWh","Available Energy"],
+            [true,"","System State - Charging"],
+            [0.5,"kW","Current Power Consumption"],
+            [1.2,"kW","Solar PV Power Generation"],
+            [6.7,"kWh","Solar PV Energy Generated Today"],
+            [191.4,"kWh","Solar PV Energy Generated This Month"],
+            [3.7,"kWh","Total Energy Consumed Today"],
+            [90.4,"kWh","Total Energy Consumed this Month"]
+        ],
+       "priorities": {
+            "0": ["Nursery 1 - Lights","lights"],
+            "1": ["Nursery 2 - Lights","lights"],
+            "2": ["Playground - Lights","lights"],
+            "3": ["Nursery 1 - Sockets","sockets"],
+            "4": ["Nursery 2 - Sockets","sockets"],
+            "5": ["Playground - Sockets","sockets"]
+        }
+    }
+    
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 404 NOT FOUND <br />
+    **Content:** `{"error" : "No Data is currently available."}`
+
+* **Sample Call:**
+
+  ```javascript
+     $.ajax({ url: "/read_state/v2",
+    dataType: "json",
+    type : "GET",
+    success : function(r) {
+      console.log(r);
+    } 
+    });
+  ```
+
+
+**Sending priority Changes**
+----
+  Tells the system if there were any priority changes envolved.
+
+* **URL**
+
+  /update_priorities
+
+* **Method:**
+
+  `POST`
+  
+*  **URL Params**
+
+   None
+
+* **Data Params**
+
+  * **Content-Type: application/json**
+  ```json
+    {
+      "priorities": {
+        "0": "Nursery 1 - Lights",
+        "1": "Nursery 2 - Lights",
+        "2": "Playground - Lights",
+        "3": "Nursery 1 - Sockets",
+        "4": "Nursery 2 - Sockets",
+        "5": "Playground - Sockets"
+      }
+    }
+    ```
+* **Success Response:**
+
+* **Code:** 200 <br />
+  **Content:** `{"success": "Data Submitted Successfully."}`
+ 
+* **Error Response:**
+
+  * **Code:** 404 NOT FOUND <br />
+    **Content:** `{"error": "Somethign went wrong with the submission."}`
+
+* **Sample Call:**
+
+  ```javascript
+      $.ajax({ url: "/update_priorities",
+      type: "POST",
+      data: JSON.stringify({"priorities":{"1": "Nursery 1 - Lights","2": "Nursery 2 - Lights","3": "Playground - Lights","4": "Nursery 1 - Sockets","5": "Nursery 2 - Sockets","6": "Playground - Sockets"}}),
+      dataType: "json",
+      contentType: "application/json; charset=utf-8",
+      success : function(r) {
+        console.log(r);
+      } 
+      });
+    ```
 
 ## Misc and Information
 
