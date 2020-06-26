@@ -67,7 +67,7 @@ class MicrogridWebRetreiver:
                             "LED_NL_session", "LED_NL_remain",
                             "LED_BL_session", "LED_BL_remain"]
 
-    def __init__(self, group, dev, mac,sql_raw_energy, sql_raw_state, sql_addr, sql_port, sql_user, sql_pw, sql_db, mesh_user, mesh_pw,):
+    def __init__(self, group, dev, mac,sql_raw_energy, sql_raw_state, sql_addr, sql_port, sql_user, sql_pw, sql_db, mesh_user, mesh_pw,mesh_addr):
 
         self.group = group
         self.dev = dev
@@ -87,7 +87,7 @@ class MicrogridWebRetreiver:
         db_string = "postgres://" + sql_user + ":" + sql_pw + "@" + sql_addr + ":" + sql_port + "/" + sql_db
         self.db = create_engine(db_string)
         self.latest = str(datetime.datetime.now())+ "Init Done"
-
+        self.mesh_addr = mesh_addr
     def save_values(self, vals, vals2):
         if len(vals) > 0:
             for val in vals:
@@ -125,7 +125,7 @@ class MicrogridWebRetreiver:
         mac = self.mac.replace(":", "")
         file = datetime.datetime.now().strftime("%d-%m-%Y.csv")
         # print("Querrying for: ", group, " ", device, " ", mac, " ",file)
-        df = self.wb.retreiveFiles("http://heed-files.meshpower.co.rw/kigeme/", mac, file)
+        df = self.wb.retreiveFiles(self.mesh_addr, mac, file)
         to_save = {}
         to_save2 = {}
         mock_ts = None

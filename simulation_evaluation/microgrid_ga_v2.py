@@ -10,7 +10,7 @@ from simulation_evaluation.microgrid_simulator import ControllEnvironment
 
 class MicrogridGA:
 
-    def __init__(self, generations, size, day_nr=18, precision=1, battery_power=21.1,battery_max_discharge = 40.0,
+    def __init__(self, generations, size, day_nr=18, precision=1, battery_power=21.1, battery_max_discharge=40.0,
                  pv_scale=1.0, priorities=[1, 2, 3, 4, 5, 6, 7],
                  step_type="percentage", mutate_chance=0.2, elit_perc=0.05):
         self.battery_power = battery_power
@@ -45,10 +45,10 @@ class MicrogridGA:
         applied = self.test_env.step_24h(self.best, battery_power=self.battery_power, pv_scale=self.pv_scale,
                                          step_type=self.step_type)
         return applied
-    
+
     def get_original(self):
         return self.test_env.input_df.reset_index(drop=True)
-    
+
     def generate_population(self):
         population = []
         for i in range(self.size):
@@ -70,12 +70,12 @@ class MicrogridGA:
         applied = self.test_env.step_24h(self.best, battery_power=self.battery_power, pv_scale=self.pv_scale,
                                          step_type=self.step_type)
         return self.evaluate_individual(applied)
-    
-    def get_deployed(self,individual):
+
+    def get_deployed(self, individual):
         applied = self.test_env.step_24h(self.best, battery_power=self.battery_power, pv_scale=self.pv_scale,
                                          step_type=self.step_type)
         return applied
-    
+
     def evaluate_population(self, population):
         ret = {}
         for pop in population:
@@ -157,11 +157,11 @@ class MicrogridGA:
         if max(evaluated_population) > self.best_score:
             self.best = evaluated_population[max(evaluated_population)]
             self.best_score = max(evaluated_population)
-        self.history[step] = [self.best_score, self.best,time.time()-self.start]
+        self.history[step] = [self.best_score, self.best]
         self.population = self.make_next_generation(evaluated_population)
 
     def run(self):
-        self.start = time.time()
+        start = time.time()
         self.generate_population()
         i = 0
         while True:
@@ -170,14 +170,15 @@ class MicrogridGA:
             self.do_step(i)
             print("Best Individual: ", self.best)
             print("Best Score: ", self.best_score)
-            print("Elapsed Time:", time.time() - self.start)
+            print("Elapsed Time:", time.time() - start)
+            i += 1
             if i == self.generations:
                 break
 
         print("\n🔬 FINAL RESULT")
         print("Best Individual: ", self.best)
         print("Best Score: ", self.best_score)
-        print("Elapsed Time:", time.time() - self.start)
-        #self.save_best()
-        #print("Best Individual saved to output_data.csv")
+        print("Elapsed Time:", time.time() - start)
+        # self.save_best()
+        # print("Best Individual saved to output_data.csv")
         print("History: ", [self.history[x][0] for x in self.history])

@@ -99,22 +99,24 @@ class DataProcessor:
         return int_df, actual_day_nr, actual_hour
 
 
-    def get_full_data_init(self, actual_day_nr=None, actual_hour=None, battery_power=21.1, pv_scale=1.0,location="../data/microgrid_processed_august.csv"):
+    def get_full_data_init(self, actual_day_nr=None, actual_hour=None, battery_power=21.1,battery_max_discharge = 40.0,
+                           pv_scale=1.0,location="../data/microgrid_processed_august.csv"):
         df = self.load_csv_data(location=location)
         data, day, hour = self.select_random_day(df, actual_day_nr=actual_day_nr, actual_hour=actual_hour)
 
         for dev in self.priorities:
             data[self.priorities[dev] + "_Priority"] = dev
 
-        data = self.scaleData(data, battery_power=battery_power, pv_scale=pv_scale)
+        data = self.scaleData(data, battery_power=battery_power, pv_scale=pv_scale,
+                              battery_max_discharge=battery_max_discharge)
 
         return data
 
-    def scaleData(self, data, battery_power=21.1, pv_scale=1.0):
+    def scaleData(self, data, battery_power=21.1, pv_scale=1.0,battery_max_discharge=40.0):
         soc = data[data.index == data.index.min()]['Battery_SoC'].values[0]
         energy_diff = data[data.index == data.index.min()]['Consumed_Energy'].values[0] - \
                       data[data.index == data.index.min()]['Generated_Energy'].values[0]
-        bat = Battery(state_of_charge=soc, battery_capacity=battery_power)
+        bat = Battery(state_of_charge=soc, battery_capacity=battery_power,max_discharge=battery_max_discharge)
         bat.resolve_energy(energy_diff / 1000.0)
 
         first = True
@@ -197,25 +199,28 @@ class ControllEnvironment:
     input_df = None
     df_control = None
 
-    def __init__(self, step=0, day_nr=38, actual_hour=0, battery_power=21.1, pv_scale=1.0,
+    def __init__(self, step=0, day_nr=38, actual_hour=0, battery_power=21.1,battery_max_discharge = 40.0, pv_scale=1.0,
                  priorities=[1, 2, 3, 4, 5, 6, 7],step_type="binary",control_args=None,location="../data/microgrid_processed_august.csv"):
         self.step = step
         self.battery_power = battery_power
+        self.battery_max_discharge = battery_max_discharge
         self.pv_scale = pv_scale
         self.initialise_data(day_nr=day_nr, actual_hour=actual_hour, battery_power=battery_power,
+                             battery_max_discharge =battery_max_discharge,
                                  pv_scale=pv_scale, priorities=priorities,location=location)
 
 
-    def initialise_data(self, day_nr=38, actual_hour=3, battery_power=21.1, pv_scale=1.0,
+    def initialise_data(self, day_nr=38, actual_hour=3, battery_power=21.1, battery_max_discharge = 40.0, pv_scale=1.0,
                         priorities=[1, 2, 3, 4, 5, 6, 7],location="../data/microgrid_processed_august.csv"):
         dp = DataProcessor()
         dp.set_priorities(priorities)
         data = dp.get_full_data_init(actual_day_nr=day_nr, actual_hour=actual_hour,
-                                     battery_power=battery_power, pv_scale=pv_scale,location=location)
+                                     battery_power=battery_power, battery_max_discharge = battery_max_discharge,
+                                     pv_scale=pv_scale,location=location)
         # Save Value
         self.input_df = data
         soc = data[data.index == data.index.max()]['Battery_SoC'].values[0]
-        self.battery = Battery(state_of_charge=soc, battery_capacity=battery_power)
+        self.battery = Battery(state_of_charge=soc, battery_capacity=battery_power,max_discharge=battery_max_discharge)
         self.curr_date = data[data.index == data.index.max()].index[0]
 
     def get_starting_scenario(self):
@@ -235,7 +240,7 @@ class ControllEnvironment:
         soc = int_df[int_df.index == int_df.index.min()]['Battery_SoC'].values[0]
         energy_diff = int_df[int_df.index == int_df.index.min()]['Consumed_Energy'].values[0] - \
                       int_df[int_df.index == int_df.index.min()]['Generated_Energy'].values[0]
-        bat = Battery(state_of_charge=soc, battery_capacity=battery_power)
+        bat = Battery(state_of_charge=soc, battery_capacity=battery_power,max_discharge=self.battery_max_discharge)
         bat.resolve_energy(energy_diff / 1000.0)
 
         # Enact Changes

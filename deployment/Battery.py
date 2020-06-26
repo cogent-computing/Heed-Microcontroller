@@ -7,7 +7,7 @@ class Battery:
     state_of_charge = 0.0
     battery_capacity = 21.1
     available_energy = 0.0
-    max_discharge = 50.0
+    max_discharge = 40.0
     charge_efficiency = 0.80
     self_discharge_h = 0.001  # Not Used as very smol
 

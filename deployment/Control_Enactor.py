@@ -25,29 +25,41 @@ class Enactor:
     def enact_light_plan(self, dev, BL_Quota, NL_Quota):
         # print("Enacting: ", dev, " BL: ", BL_Quota, " NL: ", NL_Quota)
 
-        quota_skeleton = [
-            {
-                "name": "LED Night Light",
-                "conditional": "True",
-                "level_range_lo": 0,
-                "quota_total": NL_Quota,
-                "level_range_hi": 10,
-                "remote_quota_name": "LED NL",
-                "unit": 8
-            },
-            {
-                "name": "LED Bright Light",
-                "conditional": "True",
-                "level_range_lo": 0,
-                "quota_total": BL_Quota,
-                "level_range_hi": 190,
-                "remote_quota_name": "LED BL",
-                "unit": 8
+        quota_skeleton = {
+            "ID": "092",
+            "NAME": dev,
+            "DESC": "Quota for"+str(dev)+" BL<"+str(BL_Quota)+"> NL<"+str(NL_Quota)+">",
+            "DAILY_RENTAL": 0.0,
+            "QUOTAS":
+                [
+                    {
+                        "name": "LED Night Light",
+                        "conditional": "True",
+                        "level_range_lo": 0,
+                        "quota_total": NL_Quota,
+                        "level_range_hi": 10,
+                        "remote_quota_name": "LED NL",
+                        "unit": 8
+                    },
+                    {
+                        "name": "LED Bright Light",
+                        "conditional": "True",
+                        "level_range_lo": 0,
+                        "quota_total": BL_Quota,
+                        "level_range_hi": 190,
+                        "remote_quota_name": "LED BL",
+                        "unit": 8
+                    }
+                ],
+            "ACTIVE_SETTINGS": {
+                "LED1_limit": 190,
+                "LED2_limit": 190,
+                "LED3_limit": 190
             }
-        ]
+        }
 
         # Check whether there is any major change to the tariff/plan
-        prev_plan = self.retreive_previous_plan(dev)
+        prev_plan = self.retreive_previous_plan_DC(dev)
 
         #Write New Plan Locally
 
@@ -57,40 +69,42 @@ class Enactor:
         with open(f_name, 'w+') as outfile:
             json.dump(quota_skeleton, outfile)
 
-        key_path = os.path.join(os.path.dirname(base_dir),self.sftp_key_location)
-
-        with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
-                               password=self.sftp_password,
-                               private_key=key_path, cnopts=self.cnopts) as sftp:
-            with sftp.cd(self.sftp_directory):
-                sftp.put(f_name)
-
-
-        #print("Diff: ", self.check_diff_light(prev_plan, BL_Quota, NL_Quota))
-
         if self.check_diff_light(prev_plan, BL_Quota, NL_Quota) >= self.change_threshold:
-            # Enact on website
-            self.make_changes_on_site(dev)
+
+            key_path = os.path.join(os.path.dirname(base_dir),self.sftp_key_location)
+
+            with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
+                                   password=self.sftp_password,
+                                   private_key=key_path, cnopts=self.cnopts) as sftp:
+                with sftp.cd(os.path.join(self.sftp_directory,"HeedDcPlan")):
+                    sftp.put(f_name)
             return True
         return False
 
     def enact_socket_plan(self, dev, AC_total):
         # print("Enacting: ", dev, " AC ", AC_total)
 
-        quota_skeleton = [
-            {
-                "name": "Energy",
-                "conditional": "True",
-                "level_range_lo": 1,
-                "quota_total": AC_total,
-                "level_range_hi": 50000,
-                "remote_quota_name": "AC Day Energy",
-                "unit": 5
-            }
-        ]
+        quota_skeleton = {
+            "ID": "092",
+            "NAME": dev,
+            "DAILY_RENTAL": 0.0,
+            "DESC": "Quota for"+str(dev)+" AC_total<"+str(AC_total)+">",
+            "QUOTAS": [
+                {
+                    "name": "Energy",
+                    "conditional": "True",
+                    "level_range_lo": 1,
+                    "quota_total": AC_total,
+                    "level_range_hi": 50000,
+                    "remote_quota_name": "AC Day Energy",
+                    "unit": 5
+                }
+            ],
+            "ACTIVE_SETTINGS": {"vRELAY1_LIMIT": 1500}
+        }
 
         # Check whether there is any major change to the tariff/plan
-        prev_plan = self.retreive_previous_plan(dev)#
+        prev_plan = self.retreive_previous_plan_AC(dev)#
 
         # Enact New Plan
 
@@ -100,22 +114,20 @@ class Enactor:
         with open(f_name, 'w+') as outfile:
             json.dump(quota_skeleton, outfile)
 
-        key_path = os.path.join(base_dir, self.sftp_key_location)
-
-        with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
-                               password=self.sftp_password,
-                               private_key=key_path, cnopts=self.cnopts) as sftp:
-            with sftp.cd(self.sftp_directory):
-                sftp.put(f_name)
-
-        #print("Diff: ",self.check_diff_socket(prev_plan, AC_total))
         if self.check_diff_socket(prev_plan, AC_total) >= self.change_threshold:
-            # Enact on website
-            self.make_changes_on_site(dev)
+
+            key_path = os.path.join(base_dir, self.sftp_key_location)
+
+            with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
+                                   password=self.sftp_password,
+                                   private_key=key_path, cnopts=self.cnopts) as sftp:
+                #TODO Change done here do everywhere
+                with sftp.cd(os.path.join(self.sftp_directory,"HeedAcPlan")):
+                    sftp.put(f_name)
             return True
         return False
 
-    def retreive_previous_plan(self, dev):
+    def retreive_previous_plan_AC(self, dev):
         # print("Retreiving previous plan for dev",dev)
 
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath("__file__")))
@@ -126,15 +138,60 @@ class Enactor:
         with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
                                password=self.sftp_password,
                                private_key=key_path, cnopts=self.cnopts) as sftp:
-            with sftp.cd(self.sftp_directory):
+            with sftp.cd(os.path.join(self.sftp_directory,"HeedAcPlan")):
                 try:
                     sftp.get(dev + ".json", f_name)
                 except IOError:
                     print('Previous File not There')
                     return None
+                except FileNotFoundError:
+                    print("File not There")
+                    return None
 
         with open(f_name, 'r') as infile:
             data = json.load(infile)
+            data = data['QUOTAS']
+            BL = 0
+            NL = 0
+            if len(data) == 2:
+                if data[0]["remote_quota_name"] == "LED NL":
+                    NL = data[0]["quota_total"]
+                    BL = data[1]["quota_total"]
+                elif data[0]["remote_quota_name"] == "LED BL":
+                    BL = data[0]["quota_total"]
+                    NL = data[1]["quota_total"]
+                else:
+                    raise ValueError("loaded Json doesn't have LED NL or LED BL")
+                return BL, NL
+            elif len(data) == 1:
+                return data[0]["quota_total"]
+            else:
+                raise ValueError("loaded Json not in the right Format")
+
+    def retreive_previous_plan_DC(self, dev):
+        # print("Retreiving previous plan for dev",dev)
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath("__file__")))
+        f_name = os.path.join(os.path.join(os.path.join(base_dir, "deployment"), "plans"), dev + ".json")
+
+        key_path = os.path.join(base_dir, self.sftp_key_location)
+
+        with pysftp.Connection(self.sftp_location, port=self.sftp_port, username=self.sftp_username,
+                               password=self.sftp_password,
+                               private_key=key_path, cnopts=self.cnopts) as sftp:
+            with sftp.cd(os.path.join(self.sftp_directory,"HeedDcPlan")):
+                try:
+                    sftp.get(dev + ".json", f_name)
+                except IOError:
+                    print('Previous File not There')
+                    return None
+                except FileNotFoundError:
+                    print("File not There")
+                    return None
+
+        with open(f_name, 'r') as infile:
+            data = json.load(infile)
+            data = data['QUOTAS']
             BL = 0
             NL = 0
             if len(data) == 2:
@@ -183,6 +240,3 @@ class Enactor:
             # No Values should be 0 here
             diff = abs(prev_plan - AC_total) / (prev_plan + AC_total) * 2.0
             return diff
-
-    def make_changes_on_site(self, dev):
-        print("Making Changes on Website for: ", dev)

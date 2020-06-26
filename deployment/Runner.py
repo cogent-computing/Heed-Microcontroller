@@ -185,7 +185,7 @@ threads.append(
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"], json_data["mesh_files"], json_data["mesh_addr"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
 # Create Thread for Forecaster

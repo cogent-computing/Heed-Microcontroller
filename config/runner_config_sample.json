@@ -1,7 +1,7 @@
 {
   "devices": {
     [Device 1]:[Device 1 Mac address ex: "00:00:00:00:00:00"]
-    [Device 2],": [Device 2 Mac address ex:"00:00:00:00:00:00"]
+    [Device 2]: [Device 2 Mac address ex:"00:00:00:00:00:00"]
   },
   "allocation": {
     "System_Data": [
@@ -13,7 +13,10 @@
     ],
 
   },
-
+    "account_to_dev": {
+    [Device 1]:[Device 1 managemnet number "1234"]
+    [Device 2]: [Device 2 managemnet number "2234"]
+  },
   "sql_user": [postgresql user],
   "sql_pw": [postgresql password],
   "sql_db": [postgresql db],
@@ -44,4 +47,6 @@
   "sampling_logger": [Logger Sampling time],
   "sampling_dev_v1": [Web Sampling time],
   "sampling_dev_v2": [Local Sampling time]
+  "mesh_files":[Files Address],
+  "mesh_addr": [Portal Address to change plans]
 }

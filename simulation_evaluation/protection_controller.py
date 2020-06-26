@@ -2,37 +2,43 @@
 from simulation_evaluation.microgrid_simulator import ControllEnvironment
 from deployment.Battery import Battery
 
-class SpaceShareController:
+class ProtectionController:
 
-    def __init__(self,day_nr=18, precision=1, battery_power=21.1,battery_max_discharge = 40.0,
+    def __init__(self,day_nr=18, precision=1, battery_power=21.1,battery_max_discharge=40.0,
                  pv_scale=1.0, priorities=[1, 2, 3, 4, 5, 6, 7]):
         self.battery_power = battery_power
+        self.battery_max_discharge = battery_max_discharge
         self.pv_scale = pv_scale
         self.priorities = priorities
         self.precision = precision
-        self.battery_max_discharge = battery_max_discharge
         self.test_env = ControllEnvironment(day_nr=day_nr, battery_power=battery_power,
-                                            battery_max_discharge = battery_max_discharge, pv_scale=pv_scale,
+                                            battery_max_discharge = self.battery_max_discharge,pv_scale=pv_scale,
                                             priorities=priorities)
 
-    def sort_device(self, df, dev, remaining_energy):
-        #Already zero nothing to do
-        if remaining_energy <= 0.0:
-            return 0.0, 0.0
-
-        used_energy = sum(df[dev])
-        print("Used Energy: ",used_energy)
-        remaining_energy2 = remaining_energy-used_energy
-        print("Remaining Energy: ",remaining_energy2)
-
-        if remaining_energy2>=0.0:
-            return remaining_energy2,1.0
+    def sort_hour(self, values):
+        energy_diff = values["Generated_Energy"] - values['Consumed_Energy']
+        dev_load = values['Consumed_Energy'] - values['System_Load']
+        print("Consumed Energy: ",values['Consumed_Energy']," System Load: ",values['System_Load']," Generated Energy:",
+              values["Generated_Energy"], " Device Energy:",dev_load, " EnergyDiff: ",energy_diff," Battery:",self.bat)
+        if energy_diff < 0:
+            diff = self.bat.discharge_battery(-energy_diff/1000.0)
         else:
-            return 0.0,remaining_energy/used_energy
+            diff = self.bat.charge_battery(energy_diff/1000.0)
+        if self.bat.state_of_charge <= self.bat.max_discharge:
+            print("Battery Energy Fully Discharged: ",self.bat, "Diff: ",diff)
+            if diff >= dev_load:
+                print("Energy not available - Remaining energy less than used by devices: ", 0.0)
+                return 0.0
+            else:
+                print("Energy not available - Devices partially curtailed: ",diff/dev_load)
+                return diff/dev_load
+        else:
+            print("Battery  Energy Available:",self.bat)
+            return 1.0
 
     def run(self):
 
-        self.latest ="Running Space Shared Control on Hist Data... "
+        self.latest ="Running Protection Controller on  Hist Data... "
 
         df_system_for = self.test_env.input_df.reset_index(drop=True)
 
@@ -46,11 +52,9 @@ class SpaceShareController:
         else:
             bat.discharge_battery(initial_e_diff / 1000.0)
         battery_soc = bat.state_of_charge
-
+        self.bat = bat
         print("-------Energy State--------")
-        print(bat.get_discharge_capacity_left())
-        #Gnerated Energy - System Load + Battery Capacity Left
-        remaining_energy = gen_energy - system_load + bat.get_discharge_capacity_left()*1000
+        remaining_energy = self.bat.get_discharge_capacity_left()*1000.0 # remaining battery SOC, with 90% gettable at a 21kw battery
         print("Generated energy: " + str(gen_energy))
         print("System Load: " + str(system_load))
         print("Battery SoC: " + str(battery_soc))
@@ -67,13 +71,16 @@ class SpaceShareController:
         #remaining_energy = 0  # Overwrite for testing
 
         control_dict={}
-
         for key in sorted(prior_values.keys()):
+            control_dict[prior_values[key]] = []
+
+        for key, values in df_system_for.iterrows():
             print("------------------------------------------------")
-            print("For Device: " + prior_values[key] + " with energy avialable: " + str(remaining_energy))
-            remaining_energy, fraction = self.sort_device(df_system_for, prior_values[key].split("_Quota")[0], remaining_energy)
-            control_dict[prior_values[key]] = [fraction for x in range(0, 24)]
-            print("Result: "+str(remaining_energy),"Fraction: ",fraction)
+            print("For Hour: " + str(key))
+            fraction = self.sort_hour(values)
+            print("Resulting Fraction: ", fraction)
+            for key2 in sorted(prior_values.keys()):
+                control_dict[prior_values[key2]].append(fraction)
 
         self.control_dict = control_dict
 
