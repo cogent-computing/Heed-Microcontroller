@@ -12,6 +12,8 @@ import random
 app = Flask(__name__);
 CORS(app);
 
+#Test
+
 priorities = None
 
 class DataFaker:
