@@ -67,14 +67,15 @@ class MicrogridGA:
         return sum(individual['Battery_SoC']) / 100.0 / 24.0
 
     def apply_function(self, individual):
-        applied = self.test_env.step_24h(self.best, battery_power=self.battery_power, pv_scale=self.pv_scale,
+        applied = self.test_env.step_24h(individual, battery_power=self.battery_power, pv_scale=self.pv_scale,
                                          step_type=self.step_type)
         return self.evaluate_individual(applied)
-    
-    def get_deployed(self,individual):
-        applied = self.test_env.step_24h(self.best, battery_power=self.battery_power, pv_scale=self.pv_scale,
+
+    def get_deployed(self, individual):
+        applied = self.test_env.step_24h(individual, battery_power=self.battery_power, pv_scale=self.pv_scale,
                                          step_type=self.step_type)
         return applied
+
     
     def evaluate_population(self, population):
         ret = {}
@@ -123,7 +124,7 @@ class MicrogridGA:
 
     def make_next_generation(self, evaluated_population):
         next_generation = []
-        population_size = len(evaluated_population)
+        population_size = self.size
         fitness_sum = sum(evaluated_population.keys())
 
         # Elitism
@@ -171,6 +172,7 @@ class MicrogridGA:
             print("Best Individual: ", self.best)
             print("Best Score: ", self.best_score)
             print("Elapsed Time:", time.time() - self.start)
+            i+=1
             if i == self.generations:
                 break
 
@@ -181,3 +183,19 @@ class MicrogridGA:
         #self.save_best()
         #print("Best Individual saved to output_data.csv")
         print("History: ", [self.history[x][0] for x in self.history])
+
+#
+# day_nr=18
+# precision=1
+# battery_power=4.1
+# battery_max_discharge = 40.0
+# pv_scale=0.4
+# priorities=[1, 2, 3, 4, 5, 6, 7]
+# gens = 50
+# size = 100
+#
+# my_ga2 = MicrogridGA(gens, size,day_nr=day_nr, precision=precision, battery_power=battery_power,
+#                                                battery_max_discharge = battery_max_discharge, pv_scale=pv_scale,
+#                     priorities=priorities,step_type="percentage", mutate_chance=0.4, elit_perc=0.00)
+# #Redefine to new function
+# my_ga2.run()
