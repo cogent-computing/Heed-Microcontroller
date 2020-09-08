@@ -46,3 +46,9 @@
 /docs/jiang2013.pdf
 /docs/Mesh Power_HEED control.pdf
 /docs/Mesh Power_HEED inferface training.pdf
+/venv/
+/deployment/__pycache__
+/simulation_evaluation/__pycache__
+/tests/__pycache__
+/Web_UI/dashboard.conf
+/Web_UI/flask_monitoringdashboard.db

@@ -1,15 +1,8 @@
-import asyncio, telnetlib3
-import difflib
-import re
-import sys
-import traceback
-from pprint import pprint
-
 import datetime
 import time
 import json
 from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
+
 import os
 import pandas as pd
 
@@ -38,6 +31,10 @@ devices = json_data["devices"]
 if "Victron_VenusGX" in devices:
     del devices["Victron_VenusGX"]
 allocation = json_data["allocation"]
+
+if "System_Data" in allocation:
+    del allocation["System_Data"]
+
 forecast_sql = json_data["sql_forecast"]
 
 print("Starting Population...")
@@ -92,7 +89,7 @@ var_alloc = {'VenusGX/Ac/Consumption/L1/Power': "AC_consumption_W",
 
 date_range = [curr_time - datetime.timedelta(minutes=x * 15) for x in range(24 * 4)]
 
-df = pd.read_csv("../data/microgrid_processed_august.csv", error_bad_lines=True)
+df = pd.read_csv(os.path.join(os.path.join(dir_path, 'data'), 'microgrid_processed_august.csv') , error_bad_lines=True)
 cols = list(df.columns)
 cols.remove("timestamp")
 for col in cols:

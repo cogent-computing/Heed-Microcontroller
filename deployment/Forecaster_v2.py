@@ -12,7 +12,10 @@ from pvlib import clearsky, atmosphere, solarposition
 from pvlib.location import Location
 from pvlib.iotools import read_tmy3
 from pvlib.solarposition import get_solarposition
+import sys
 
+# Own Imports
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from deployment.Data_Retreiver import Data_Retreiver
 from deployment.Battery import Battery
 
@@ -122,10 +125,10 @@ class Forecaster:
             df = self.data.retreive_filled_aggre(curr_ts-datetime.timedelta(days=offset),8)
             offset+=1
         if df is None:
-            print("No values available:")
+            self.latest = "No values available."
             return None
         #df.to_csv("in.csv")
-        bat = Battery(state_of_charge=df['battery_soc'].values[0])
+        bat = self.Battery(state_of_charge=df['battery_soc'].values[0])
         devices = [ x for x in df.columns if x not in ['timestamp','battery_soc','generated_energy',
                                                         'charged_energy']] #COnsumed Energy and System load are treated as devices for the purpose of forecasting
         full_df = None

@@ -20,10 +20,11 @@ Slides detailing the architecture, concept and methods of the Microgrid Deployme
 # Setup
 The repository comes with a [Makefile](Makefile) that will install all of the python libraries required to run the scripts. Thescript assumes you have python and pip installed. The variations of the makefile are:
 ```
-make install                        Install all of the python requirements for running any part of the code
-make test                           UnitTests for all the deployment modules
-make docker_build:                  Building the docker containers that can be used to deploy the microcontroller and interface
-make docker_run                     Deploying the docker containers that were built using docker_build 
+install                        Install all of the python requirements for running any part of the code
+test                           UnitTests for all the deployment modules
+docker_build                   Building the docker containers that can be used to deploy the microcontroller and interface
+docker_run                     Deploying the docker containers that were built using docker_build
+docker_run_simulated           Deploying the docker container that has the interface and simualted data for visualisation purposes
 ```
 
 # Usage and Examples

@@ -6,8 +6,10 @@ const VERSION = '1.0.1';
 /** Ordered by rank, will attempt to use first then second etc. */
 
 const API = [
+    "",
     "http://localhost:80",
     "http://127.0.0.1:80",
+    "http://nandorverba.hopto.org:5000",
 ];
 
 /** Maximum thresholds (%) for setting battery charge indicator CSS colour. Must be ordered. */

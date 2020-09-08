@@ -7,8 +7,10 @@ import json
 import os
 import unittest
 import time
+import sys
 
 # Own Imports
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from deployment.Control_Enactor import Enactor
 from deployment.Data_Retreiver import Data_Retreiver
 

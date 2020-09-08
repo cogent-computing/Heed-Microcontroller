@@ -5,6 +5,7 @@ import warnings
 import sys
 import re
 import os
+from os.path import dirname
 
 warnings.filterwarnings('ignore')
 
@@ -100,8 +101,9 @@ class DataProcessor:
 
 
     def get_full_data_init(self, actual_day_nr=None, actual_hour=None, battery_power=21.1,battery_max_discharge = 40.0,
-                           pv_scale=1.0,location="../data/microgrid_processed_august.csv"):
-        df = self.load_csv_data(location=location)
+                           pv_scale=1.0,location="data/microgrid_processed_august.csv"):
+        base_dir = dirname(dirname(__file__))
+        df = self.load_csv_data(location=os.path.join(base_dir,location))
         data, day, hour = self.select_random_day(df, actual_day_nr=actual_day_nr, actual_hour=actual_hour)
 
         for dev in self.priorities:
@@ -200,7 +202,7 @@ class ControllEnvironment:
     df_control = None
 
     def __init__(self, step=0, day_nr=38, actual_hour=0, battery_power=21.1,battery_max_discharge = 40.0, pv_scale=1.0,
-                 priorities=[1, 2, 3, 4, 5, 6, 7],step_type="binary",control_args=None,location="../data/microgrid_processed_august.csv"):
+                 priorities=[1, 2, 3, 4, 5, 6, 7],step_type="binary",control_args=None,location="data/microgrid_processed_august.csv"):
         self.step = step
         self.battery_power = battery_power
         self.battery_max_discharge = battery_max_discharge
@@ -211,7 +213,7 @@ class ControllEnvironment:
 
 
     def initialise_data(self, day_nr=38, actual_hour=3, battery_power=21.1, battery_max_discharge = 40.0, pv_scale=1.0,
-                        priorities=[1, 2, 3, 4, 5, 6, 7],location="../data/microgrid_processed_august.csv"):
+                        priorities=[1, 2, 3, 4, 5, 6, 7],location="data/microgrid_processed_august.csv"):
         dp = DataProcessor()
         dp.set_priorities(priorities)
         data = dp.get_full_data_init(actual_day_nr=day_nr, actual_hour=actual_hour,

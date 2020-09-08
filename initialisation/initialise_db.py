@@ -1,17 +1,8 @@
-import asyncio, telnetlib3
-import difflib
-import re
-import sys
-import traceback
-from pprint import pprint
-
-import datetime
-import time
 import json
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 import os
-import pandas as pd
+
 
 dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # Core directory always
 with open(os.path.join(os.path.join(dir_path, 'config'), 'runner_config.json')) as json_file:
@@ -32,6 +23,9 @@ sql_table3 = json_data["sql_preference"]
 
 sql_aggregate =  json_data["sql_aggregate"]
 sql_decision = json_data["sql_decision"]
+
+#ToDo Add logging data init
+sql_logging_data = json_data["sql_logging_data"]
 
 devices = json_data["devices"]
 

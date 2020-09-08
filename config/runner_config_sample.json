@@ -34,6 +34,7 @@
   "sql_preference": "preference_users",
   "sql_raw_energy": "raw_energy_data",
   "sql_raw_state": "raw_state_data",
+  "sql_logging_data": "logging_data",
   "telnet_addr": [telnet_addr],
   "telnet_port": [telnet_port],
   "mesh_user": [sftp_server_user],

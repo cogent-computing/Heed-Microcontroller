@@ -23,7 +23,9 @@ RUN pip install pip --upgrade
 RUN apt update -y
 RUN apt install gcc g++ gfortran build-essential gfortran libatlas-base-dev -y
 RUN apt-get install libhdf5-dev -y
+RUN apt-get install libhdf5-serial-dev netcdf-bin libnetcdf-dev -y
 RUN apt-get install nano -y
 RUN pip install scipy==1.2.0
 RUN pip install statsmodels
 RUN pip install tables
+RUN pip install install flask_monitoringdashboard

@@ -4,9 +4,18 @@ import json
 from sqlalchemy import create_engine
 from flask_cors import CORS;
 import datetime
+import flask_monitoringdashboard as dashboard
+
+from os.path import dirname
+import os
+
+#Location: /dashboard
 
 app = Flask(__name__);
-CORS(app);
+CORS(app)
+base_dir = dirname(__file__)
+dashboard.config.init_from(file=os.path.join(base_dir, 'dashboard.conf'))
+dashboard.bind(app)
 
 #Docker and Local Run
 try:

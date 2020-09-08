@@ -2,22 +2,27 @@ import threading
 import time
 import sys
 import json
+import os
 # Import own Classes
-from Controller import Controller
-from Control_Enactor import Enactor
-from Data_Retreiver import Data_Retreiver
 
-from Data_Aggregator import Aggregator
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+core_path = os.path.dirname(os.path.dirname(__file__))
+from deployment.Controller import Controller
+from deployment.Control_Enactor import Enactor
+from deployment.Data_Retreiver import Data_Retreiver
 
-from Forecaster import Forecaster
+from deployment.Data_Aggregator import Aggregator
+
+#Can either chose from simple average hour forecast (Forecast) or SARIMAX(Forecaster_v2)
+from deployment.Forecaster import Forecaster
 #from Forecaster_v2 import Forecaster
 
-from Battery import Battery
+from deployment.Battery import Battery
 
-from Local_Logger import LocalLogger
-from WebsiteSpoof import MicrogridWebRetreiver
+from deployment.Local_Logger import LocalLogger
+from deployment.WebsiteSpoof import MicrogridWebRetreiver
 
-from Remote_Logger import RemoteLogger
+from deployment.Remote_Logger import RemoteLogger
 
 
 # Define Thread that reads data from telnet and pushes it to PostgreSQL
@@ -30,9 +35,9 @@ class LoggerThread(threading.Thread):
     name = None
 
     def __init__(self, name, th_type, sampling, allocation, devices, group, device, sql_aggregate, sql_decision,
-                 sql_forecast, sql_preference, sql_raw_energy, sql_raw_state, sql_addr, sql_port, sql_user, sql_pw,
+                 sql_forecast, sql_preference, sql_raw_energy, sql_raw_state,sql_logging_data,  sql_addr, sql_port, sql_user, sql_pw,
                  sql_db, telnet_addr, telnet_port, sftp_location, sftp_port, sftp_username, sftp_password,
-                 sftp_key_location, sftp_directory, mesh_user, mesh_pw, mqtt_address, mqtt_port, mqtt_username,
+                 sftp_key_location, sftp_directory, mesh_user, mesh_pw, mesh_addr, mqtt_address, mqtt_port, mqtt_username,
                  mqtt_password):
 
         super(LoggerThread, self).__init__()
@@ -65,6 +70,7 @@ class LoggerThread(threading.Thread):
         self.sql_preference = sql_preference
         self.sql_raw_energy = sql_raw_energy
         self.sql_raw_state = sql_raw_state
+        self.sql_logging_data = sql_logging_data
 
         # Settign Up SQL Credentials and details
         self.sql_addr = sql_addr
@@ -80,7 +86,7 @@ class LoggerThread(threading.Thread):
         # Webs Spoof
         self.mesh_user = mesh_user
         self.mesh_pw = mesh_pw
-
+        self.mesh_addr = mesh_addr
         # MQTT
         self.mqtt_address = mqtt_address
         self.mqtt_port = mqtt_port
@@ -100,6 +106,7 @@ class LoggerThread(threading.Thread):
                 enact = Enactor(devices_excl_sys, self.sftp_location, self.sftp_port, self.sftp_username,
                                 self.sftp_password, self.sftp_key_location,
                                 self.sftp_directory)
+                #ToDo all DBes for data retreive
                 data = Data_Retreiver(devices_excl_sys, self.sql_user, self.sql_pw, self.sql_addr, self.sql_port,
                                       self.sql_db)
 
@@ -120,7 +127,7 @@ class LoggerThread(threading.Thread):
                 self.service = MicrogridWebRetreiver(self.group, self.device, self.devices[self.device],
                                                      self.sql_raw_energy, self.sql_raw_state, self.sql_addr,
                                                      self.sql_port, self.sql_user, self.sql_pw, self.sql_db,
-                                                     self.mesh_user, self.mesh_pw)
+                                                     self.mesh_user, self.mesh_pw, self.mesh_addr)
             elif self.th_type == "RemoteLogger":
                 data = Data_Retreiver(devices_excl_sys, self.sql_user, self.sql_pw, self.sql_addr, self.sql_port,
                                       self.sql_db)
@@ -168,7 +175,7 @@ class LoggerThread(threading.Thread):
 if __name__ == "__main__":
     # Init Thread
     threads = []
-    with open('runner_config.json') as json_file:
+    with open(os.path.join(os.path.join(core_path,"config"),'runner_config.json')) as json_file:
         json_data = json.load(json_file)
 
     if json_data["run_type"] == "WebLogger":
@@ -180,25 +187,25 @@ threads.append(
     LoggerThread("Data Aggregator", "Aggregator", json_data["sampling_major"], json_data["allocation"],
                  json_data["devices"], None, None, json_data["sql_aggregate"],
                  json_data["sql_decision"], json_data["sql_forecast"], json_data["sql_preference"],
-                 json_data["sql_raw_energy"], json_data["sql_raw_state"], json_data["sql_addr"], json_data["sql_port"],
+                 json_data["sql_raw_energy"], json_data["sql_raw_state"],json_data["sql_logging_data"], json_data["sql_addr"], json_data["sql_port"],
                  json_data["sql_user"], json_data["sql_pw"],
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"], json_data["mesh_files"], json_data["mesh_addr"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"], json_data["mesh_files"], json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
-# Create Thread for Forecaster
+# # Create Thread for Forecaster
 threads.append(
     LoggerThread("Data Forecaster", "Forecaster", json_data["sampling_major"], json_data["allocation"],
                  json_data["devices"], None, None, json_data["sql_aggregate"],
                  json_data["sql_decision"], json_data["sql_forecast"], json_data["sql_preference"],
-                 json_data["sql_raw_energy"], json_data["sql_raw_state"], json_data["sql_addr"], json_data["sql_port"],
+                 json_data["sql_raw_energy"], json_data["sql_raw_state"],json_data["sql_logging_data"], json_data["sql_addr"], json_data["sql_port"],
                  json_data["sql_user"], json_data["sql_pw"],
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"],json_data["mesh_files"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
 # Create Thread for Controller
@@ -206,12 +213,12 @@ threads.append(
     LoggerThread("Microgrid Controller", "Controller", json_data["sampling_major"], json_data["allocation"],
                  json_data["devices"], None, None, json_data["sql_aggregate"],
                  json_data["sql_decision"], json_data["sql_forecast"], json_data["sql_preference"],
-                 json_data["sql_raw_energy"], json_data["sql_raw_state"], json_data["sql_addr"], json_data["sql_port"],
+                 json_data["sql_raw_energy"], json_data["sql_raw_state"],json_data["sql_logging_data"], json_data["sql_addr"], json_data["sql_port"],
                  json_data["sql_user"], json_data["sql_pw"],
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"],json_data["mesh_files"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
 # Create Threads for Logger - Web or Local
@@ -222,25 +229,25 @@ for group in json_data["allocation"]:
             LoggerThread("Raw Data Logger - " + group + " - " + dev, json_data["run_type"], sampling_dev, json_data["allocation"],
                  json_data["devices"], group, dev, json_data["sql_aggregate"],
                  json_data["sql_decision"], json_data["sql_forecast"], json_data["sql_preference"],
-                 json_data["sql_raw_energy"], json_data["sql_raw_state"], json_data["sql_addr"], json_data["sql_port"],
+                 json_data["sql_raw_energy"], json_data["sql_raw_state"],json_data["sql_logging_data"], json_data["sql_addr"], json_data["sql_port"],
                  json_data["sql_user"], json_data["sql_pw"],
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"],json_data["mesh_files"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
-# Create Thread for Controller
+# Create Thread for Remote Logger
 threads.append(
     LoggerThread("Coventry Remote Logger", "RemoteLogger", json_data["sampling_logger"], json_data["allocation"],
                  json_data["devices"], None, None, json_data["sql_aggregate"],
                  json_data["sql_decision"], json_data["sql_forecast"], json_data["sql_preference"],
-                 json_data["sql_raw_energy"], json_data["sql_raw_state"], json_data["sql_addr"], json_data["sql_port"],
+                 json_data["sql_raw_energy"], json_data["sql_raw_state"],json_data["sql_logging_data"], json_data["sql_addr"], json_data["sql_port"],
                  json_data["sql_user"], json_data["sql_pw"],
                  json_data["sql_db"], json_data["telnet_addr"], json_data["telnet_port"], json_data["sftp_location"],
                  json_data["sftp_port"], json_data["sftp_username"], json_data["sftp_password"],
                  json_data["sftp_key_location"], json_data["sftp_directory"], json_data["mesh_user"],
-                 json_data["mesh_pw"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
+                 json_data["mesh_pw"],json_data["mesh_files"],json_data["mqtt_address"], json_data["mqtt_port"], json_data["mqtt_username"],
                  json_data["mqtt_password"]))
 
 # Start Threads
@@ -249,6 +256,8 @@ for th in threads:
 
 # Initialis Sleep
 time.sleep(60)
+
+logging_time = time.time()
 
 try:
     # Idle
@@ -259,14 +268,15 @@ try:
             if th.getState() != "Running":
                 print(
                     "------  For Broken Thread " + th.getName() + " not Running with State: " + th.getState())
-                print("Error:")
                 print(th.getError())
+                print(th.getLatest())
                 th.stop()
                 # ReInitialise
                 threads[id_th].init_components()
-            else:
+            elif time.time()-(logging_time > json_data["sampling_major"]*4):
+                logging_time = time.time()
                 print("------ For Running Thread: ", th.getName(), "\n", th.getLatest())
-        time.sleep(60*5)  # Hourly is fine
+        time.sleep(json_data["sampling_major"]/3)  # Check often display rarely
 
 except Exception as ex:
     print("Unexpected error:", sys.exc_info()[0])

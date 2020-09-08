@@ -158,8 +158,12 @@ class Data_Retreiver:
     def get_unsent_logs(self, end_date):
         # Priorities
         db_string = "SELECT * FROM logging_data WHERE timestamp < '%s' AND transmitted = False" % (end_date)
-        ret = self.db.execute(db_string)
-        df_to_send = pd.DataFrame(ret.fetchall())
+        try:
+            ret = self.db.execute(db_string)
+            df_to_send = pd.DataFrame(ret.fetchall())
+        except:
+            print("No Data and Database available for unsent logs", end_date, " at: ", datetime.datetime.now())
+            return None
         if len(df_to_send) == 0:
             print("No Data Available for unsent logs", end_date, " at: ",
                   datetime.datetime.now())
