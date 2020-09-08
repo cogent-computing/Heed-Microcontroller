@@ -21,6 +21,12 @@ test: ## UnitTests for all the deployment modules
 % : test_%.py
 	${RUNTEST} test_$@
 
+initialise_db: ## Initialising the set database with data
+	@echo  "Initialising DB Containers..."
+	${PYTHON} ./initialisation/initialise_db.py
+	${PYTHON} ./initialisation/populate_historic.py 
+    
+
 docker_build: ## Building the docker containers that can be used to deploy the microcontroller and interface
 	@echo  "Building Containers..."
 	docker build -t local/core:latest -f ./docker/core/Dockerfile .
