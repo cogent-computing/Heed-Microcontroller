@@ -292,5 +292,8 @@ The unittests can be found under the [test](tests) directory. THe business logic
 * Documentation and support from [MeshPower](https://www.meshpower.co.uk/) on integrating with their system.
 * Microgrid Controller Developed at Coventry University by the Cogentee Group
 
+## DOI
+[![DOI](https://zenodo.org/badge/269322811.svg)](https://zenodo.org/badge/latestdoi/269322811)
+
 ## License
 [MIT License](LICENSE)
