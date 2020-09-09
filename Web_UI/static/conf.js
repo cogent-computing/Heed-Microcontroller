@@ -9,7 +9,6 @@ const API = [
     "",
     "http://localhost:80",
     "http://127.0.0.1:80",
-    "http://nandorverba.hopto.org:5000",
 ];
 
 /** Maximum thresholds (%) for setting battery charge indicator CSS colour. Must be ordered. */
