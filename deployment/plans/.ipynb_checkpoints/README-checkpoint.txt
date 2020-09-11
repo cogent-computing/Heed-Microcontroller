@@ -1,1 +1,0 @@
-plans folder requires to house the local version of microgrid plans. 
