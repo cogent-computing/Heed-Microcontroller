@@ -18,7 +18,9 @@ The overview of hte Microgrid architecture can be seen in the image below.
 Slides detailing the architecture, concept and methods of the Microgrid Deployment are in the [docs](docs) as [Microgrid_Presentation_Slides.pdf](docs/Microgrid%20Controller%20-%20HEED.pdf).
 
 # Setup
-The repository comes with a [Makefile](Makefile) that will install all of the python libraries required to run the scripts. Thescript assumes you have python and pip installed. The variations of the makefile are:
+The repository comes with a [Makefile](Makefile) that will install all of the python libraries required to run the scripts. The script assumes you have python, pip and docker installed. It also requires the user to complete the [runner_config_sample.json](config/runner_config_sample.json) file.
+
+The variations of the makefile are:
 ```
 docker_build                   Building the docker containers that can be used to deploy the microcontroller and interface
 docker_run                     Deploying the docker containers that were built using docker_build. If containers exists will skip.
@@ -289,6 +291,9 @@ The unittests can be found under the [test](tests) directory. THe business logic
 * WebUI Developed by [Scene](https://scene.communitygithub) and [Iain Hogg](https://github.com/iain-dev)
 * Documentation and support from [MeshPower](https://www.meshpower.co.uk/) on integrating with their system.
 * Microgrid Controller Developed at Coventry University by the Cogentee Group
+
+## DOI
+[![DOI](https://zenodo.org/badge/269322811.svg)](https://zenodo.org/badge/latestdoi/269322811)
 
 ## License
 [MIT License](LICENSE)
