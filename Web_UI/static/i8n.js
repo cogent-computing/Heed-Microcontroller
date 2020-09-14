@@ -20,7 +20,9 @@ const TRANS = {
         "solar pv energy generation 30days (kwh)": "Solar PV energy generation over 30 days",
         "energy consumption 24h (kwh)": "Energy consumption over 24 hours",
         "energy consumption 30days (kwh)": "Energy consumption over 30 days",
-        
+        "forecasted energy consumption 24h (kwh)":"Forecasted energy consumption over 24 hours",
+        "forecasted energy generation 24h (kwh)":"Forecasted Solar PV energy generation over 24 hours",
+
         "_HELP_battery state of charge (percentage)":
             "Battery state of charge (%): Percentage of battery energy available for use",
         "_HELP_power consumption (kw)":
@@ -37,7 +39,12 @@ const TRANS = {
             "Energy consumption over 24 hours (kWh): Total energy use over last 24 hours (kilowatt hours)",
         "_HELP_energy consumption 30days (kwh)":
             "Energy consumption over 30 days (kWh): Average energy use over last 30 days (kilowatt hours)",
-            
+        "_HELP_forecasted energy consumption 24h (kwh)":
+            "Forecasted energy consumption over 24 hours: Total predicted energy use for the next 24 hours (kilowatt hours)",
+        "_HELP_forecasted energy generation 24h (kwh)":
+            "Forecasted Solar PV energy generation over 24 hours: Total predicted PV generation for the next 24 hours (kilowatt hours)",
+
+
         "_HELP_PRIO": "Drag the location/load boards to set load priority",
         "_HELP_METRIC": "Press the metric selection button to choose the metric to display",
     },
@@ -65,6 +72,8 @@ const TRANS = {
         "solar pv energy generation 30days (kwh)": "Imirasire y'izuba PV muminsi 30",
         "energy consumption 24h (kwh)": "Gukoresha ingufu mu masaha 24",
         "energy consumption 30days (kwh)": "Gukoresha ingufu muminsi 30",
+        "forecasted energy consumption 24h (kwh)":"Gukoresha ingufu mumasaha 24 ari imbere",
+        "forecasted energy generation 24h (kwh)":"Imirasire y'izuba biteganijwe PV mu masaha 24",
 
         "_HELP_battery state of charge (percentage)":
             "Imiterere ya Bateri (%): Ijanisha ryingufu za bateri ziboneka kugirango ukoreshwe",
@@ -82,7 +91,11 @@ const TRANS = {
             "Gukoresha ingufu mu masaha 24 (kWh): Gukoresha ingufu zose mumasaha 24 ashize (amasaha kilowatt)",
         "_HELP_energy consumption 30days (kwh)":
             "Gukoresha ingufu muminsi 30 (kWh): Ikigereranyo cyo gukoresha ingufu muminsi 30 ishize (amasaha kilowatt)",
-            
+        "_HELP_forecasted energy consumption 24h (kwh)":
+            "Gukoresha ingufu mumasaha 24 ari imbere: Gukoresha ingufu mu masaha 24 ari imbere (kilowatt)",
+        "_HELP_forecasted energy generation 24h (kwh)":
+            "Imirasire y'izuba biteganijwe PV mu masaha 24: Imirasire y'izuba mu masaha 24 ari imbere (amasaha ya kilowatt)",
+        
         "_HELP_PRIO": "Kurura ikibanza / imizigo kugirango ushireho umutwaro wibanze",
         "_HELP_METRIC": "Kanda buto yo guhitamo buto kugirango uhitemo ibipimo byo kwerekana",
     }
