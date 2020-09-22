@@ -115,6 +115,29 @@ def read_state():
     if avail_energy < 0:
         avail_energy = 0.0
 
+    db_string = """SELECT  SUM(consumed_energy) as consumed, SUM(generated_energy) as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) > date_part('hour',CURRENT_TIME) """
+    ret_fore = db.execute(db_string).fetchall()
+    db_string2 = """SELECT  consumed_energy*(60-date_part('minute',CURRENT_TIME))/60 as consumed, 
+                    generated_energy*(60-date_part('minute',CURRENT_TIME))/60 as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) = date_part('hour',CURRENT_TIME) """
+    ret_fore2 = db.execute(db_string2).fetchall()
+    ret_for_cons_24h = -1
+    ret_for_gen_24h = -1
+    try:
+        ret_for_cons_24h = ret_fore[0][0] / 1000.0
+        ret_for_gen_24h = ret_fore[0][1] / 1000.0
+        ret_for_cons_24h += ret_fore2[0][0] / 1000.0
+        ret_for_gen_24h += ret_fore2[0][1] / 1000.0
+    except ZeroDivisionError:
+        print("Forecasting is null")
+    except ZeroDivisionError:
+        print("Forecasting is null")
+
     resp = {
         "battery state of charge (percentage)": float(ret_soc[0][0]),
         "battery energy available (kwh)": avail_energy,
@@ -125,8 +148,8 @@ def read_state():
         "solar pv energy generation 30days (kwh)": float(ret_month[0][1]) / 1000.0,
         "energy consumption 24h (kwh)": float(ret_24h[0][0]) / 1000.0,
         "energy consumption 30days (kwh)": float(ret_month[0][0]) / 1000.0,
-        "forecasted energy consumption 24h (kwh)": 0 / 1000.0,
-        "forecasted energy generation 24h (kwh)": 0 / 1000.0,
+        "forecasted energy consumption 24h (kwh)": ret_for_cons_24h,
+        "forecasted energy generation 24h (kwh)": ret_for_gen_24h,
     }
 
     return Response(json.dumps(resp), 200, content_type='application/json; charset=utf-8')
@@ -231,8 +254,6 @@ def read_state_v2():
     ret_fore2 = db.execute(db_string2).fetchall()
     ret_for_cons_24h = -1
     ret_for_gen_24h = -1
-    print(ret_fore)
-    print(ret_fore2)
     try:
         ret_for_cons_24h = ret_fore[0][0] / 1000.0
         ret_for_gen_24h = ret_fore[0][1] / 1000.0
