@@ -2,8 +2,8 @@
 
 ALLMODULES=$(patsubst %.py, %.py, $(wildcard tests/test_*.py))
 
-PYTHON = python3 #python/python3
-PIP = pip3 #pip/pip3
+PYTHON = python #python/python3
+PIP = pip #pip/pip3
 
 RUNTEST=${PYTHON} -m unittest -v -b
 
@@ -20,6 +20,12 @@ test: ## UnitTests for all the deployment modules
 
 % : test_%.py
 	${RUNTEST} test_$@
+
+deploy_db: ## Deploys database to be used
+	@echo  "Deploying  and populating Database..."
+	docker start heed-postgres || ( docker run --restart=always --name heed-postgres -e POSTGRES_PASSWORD=energy -p 5432:5432 -d postgres && sleep 15 && \
+	${PYTHON} ./initialisation/initialise_db.py && \
+	${PYTHON} ./initialisation/populate_historic.py )
 
 initialise_db: ## Initialising the set database with data
 	@echo  "Initialising DB Containers..."

@@ -231,14 +231,16 @@ def read_state_v2():
     ret_fore2 = db.execute(db_string2).fetchall()
     ret_for_cons_24h = -1
     ret_for_gen_24h = -1
+    print(ret_fore)
+    print(ret_fore2)
     try:
         ret_for_cons_24h = ret_fore[0][0] / 1000.0
         ret_for_gen_24h = ret_fore[0][1] / 1000.0
         ret_for_cons_24h += ret_fore2[0][0] / 1000.0
         ret_for_gen_24h += ret_fore2[0][1] / 1000.0
-    except TypeError:
+    except ZeroDivisionError:
         print("Forecasting is null")
-    except IndexError:
+    except ZeroDivisionError:
         print("Forecasting is null")
 
     resp = {
