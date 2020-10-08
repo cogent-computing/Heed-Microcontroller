@@ -43,6 +43,7 @@ print("Starting Population...")
 db_string = "postgres://" + sql_user + ":" + sql_pw + "@" + sql_addr + ":" + sql_port + "/" + sql_db
 db = create_engine(db_string)
 
+#curr_time = datetime.datetime.strptime("09/12/2020","%m/%d/%Y")
 curr_time = datetime.datetime.now()
 curr_time = curr_time - datetime.timedelta(minutes=(curr_time.minute % 15),
                                            seconds=curr_time.second,
