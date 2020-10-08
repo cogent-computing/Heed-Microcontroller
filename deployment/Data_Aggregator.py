@@ -11,11 +11,12 @@ import threading
 # Define class that reads aggregates raw data and saves it
 class Aggregator:
 
-    def __init__(self,dev_list,sql_table,sql_table_raw,sql_addr,sql_port, sql_user, sql_pw, sql_db):
+    def __init__(self,dev_list,sql_table,sql_table_raw,sql_table_state,sql_addr,sql_port, sql_user, sql_pw, sql_db):
 
             self.dev_list = dev_list
             self.sql_table = sql_table
             self.sql_table_raw = sql_table_raw
+            self.sql_table_state = sql_table_state
             # Settign Up SQL Credentials and details
 
             # Making intiial connection object with Database
@@ -41,8 +42,45 @@ class Aggregator:
     def getLatest(self):
         return "Aggregator: "+self.latest
 
+    def check_and_remove_outdated_data(self):
+        #Remove Week old Raw data - always have at least a week
+        #Remove Month old Aggre Data - remove a week after month starts
+
+        #Get Raw Data Sizes
+        db_string = """SELECT  COUNT(*) FROM """+self.sql_table_raw+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < CURRENT_DATE - INTERVAL '7 DAYS'"""
+        ret_raw_energy = self.db.execute(db_string).fetchall()[0][0]
+        db_string = """SELECT  COUNT(*) FROM """+self.sql_table_state+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < (CURRENT_DATE - INTERVAL '7 DAYS')"""
+        ret_raw_state = self.db.execute(db_string).fetchall()[0][0]
+        db_string = """SELECT  COUNT(*) FROM """+self.sql_table+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < (CURRENT_DATE - INTERVAL '7 DAYS')"""
+        ret_aggre = self.db.execute(db_string).fetchall()[0][0]
+        ret = "Raw_Energy:"+str(ret_raw_energy)+" Raw_State"+str(ret_raw_state)+" Aggregate"+str(ret_aggre)
+        ## Actually Removing
+        db_string = """DELETE FROM """+self.sql_table_raw+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < (CURRENT_DATE - INTERVAL '7 DAYS')"""
+        self.db.execute(db_string)
+        db_string = """DELETE FROM """+self.sql_table_state+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < (CURRENT_DATE - INTERVAL '7 DAYS')"""
+        self.db.execute(db_string)
+        db_string = """DELETE FROM """+self.sql_table+"""
+                        WHERE timestamp < date_trunc('month',CURRENT_DATE) 
+                        and timestamp < (CURRENT_DATE - INTERVAL '7 DAYS')"""
+        self.db.execute(db_string)
+        return "---Removals of Data:" + ret+"\n"
+
     def do_step(self):
-        self.latest=str(datetime.datetime.now()) + ":    Starting Routine"
+
+        self.latest = self.check_and_remove_outdated_data()
+        print(self.latest)
+
+        self.latest+= str(datetime.datetime.now()) + ":    Starting Routine"
         db_string = """SELECT bar.IntervDate FROM (SELECT DISTINCT(foo.date + interval '1' HOUR*foo.hour + interval '15' MINUTE * foo.minute) AS IntervDate FROM 
                     (SELECT DATE(timestamp) as date, 
                     extract(hour from timestamp) AS hour,

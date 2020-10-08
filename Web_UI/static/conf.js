@@ -6,6 +6,7 @@ const VERSION = '1.0.1';
 /** Ordered by rank, will attempt to use first then second etc. */
 
 const API = [
+    "/heed_interface",
     "",
     "http://localhost:80",
     "http://127.0.0.1:80",

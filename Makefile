@@ -2,8 +2,8 @@
 
 ALLMODULES=$(patsubst %.py, %.py, $(wildcard tests/test_*.py))
 
-PYTHON = python3 #python/python3
-PIP = pip3 #pip/pip3
+PYTHON = python #python/python3
+PIP = pip #pip/pip3
 
 RUNTEST=${PYTHON} -m unittest -v -b
 
@@ -20,6 +20,12 @@ test: ## UnitTests for all the deployment modules
 
 % : test_%.py
 	${RUNTEST} test_$@
+
+deploy_db: ## Deploys database to be used
+	@echo  "Deploying  and populating Database..."
+	docker start heed-postgres || ( docker run --restart=always --name heed-postgres -e POSTGRES_PASSWORD=energy -p 5432:5432 -d postgres && sleep 15 && \
+	${PYTHON} ./initialisation/initialise_db.py && \
+	${PYTHON} ./initialisation/populate_historic.py )
 
 initialise_db: ## Initialising the set database with data
 	@echo  "Initialising DB Containers..."
@@ -40,12 +46,12 @@ docker_run: docker_build ## Deploying the docker containers that were built usin
 	docker start heed-postgres || ( docker run --restart=always --name heed-postgres -e POSTGRES_PASSWORD=energy -p 5432:5432 -d postgres && sleep 15 && \
 	${PYTHON} ./initialisation/initialise_db.py && \
 	${PYTHON} ./initialisation/populate_historic.py )
-	docker start Web_UI || docker run  -p 80:80 --name Web_UI --restart=always -d local/web_control:latest
+	docker start Web_UI || docker run  -p 8050:80 --name Web_UI --restart=always -d local/web_control:latest
 	docker start MGrid_Controller || docker run  --restart=always  --name MGrid_Controller -d local/mgrid_controller:latest
 
 docker_run_simulated: docker_build ## Deploying the docker container that has the interface and simualted data for visualisation purposes
 	@echo  "Deploying Simulated Web Interface..."
-	docker start Web_UI_Sim || docker run  --restart=always -p 85:80 --name Web_UI_Sim --restart=always -d local/dummy_web_control:latest
+	docker start Web_UI_Sim || docker run  --restart=always -p 8050:80 --name Web_UI_Sim --restart=always -d local/dummy_web_control:latest
 
 .PHONY: help install test
 

@@ -37,7 +37,7 @@ class Forecaster:
         # Consumption
         self.get_cons = 1.05  # 5% Error Allowed
         self.latest = "Initialised"
-
+        self.latest_forecast = None
         self.full_df = None
 
     def stop(self):
@@ -49,7 +49,7 @@ class Forecaster:
     def get_forecast_dev(self,dev_df,forecast_period=48):
 
         dev = list(dev_df.columns)[0]
-        print("Doing forecast for Dev :",dev)
+        self.latest+="Doing forecast for Dev :"+dev+"\n"
         req_ts = max(dev_df.index)
 
         #Mock Resultdev = "system_load"
@@ -80,7 +80,7 @@ class Forecaster:
         req_ts = max(dev_df.index).replace( microsecond=0, second=0,minute=0)+datetime.timedelta(hours=1)
         dev = list(dev_df.columns)[0]
         days = pd.date_range(start=req_ts,end=req_ts + datetime.timedelta(hours=forecast_period-1),freq='1H')
-        print("Doing forecast for Generation :", dev)
+        self.latest += "Doing forecast for Generation :"+dev+"\n"
 
         # Pv Info
         lat = -2.483535
@@ -100,8 +100,11 @@ class Forecaster:
         scalar = 0.6
 
         tus = Location(lat, long, "Africa/Kigali", height, 'Kigeme')
-
-        cs = tus.get_clearsky(days, model='ineichen')  # ineichen with climatology table by default
+        try:
+            cs = tus.get_clearsky(days, model='ineichen')  # ineichen with climatology table by default
+        except ImportError:
+            self.latest +="- Import Error on Tables, using fixed turbidity - not a major problem"
+            cs = tus.get_clearsky(days,model="ineichen", linke_turbidity=3)
         sun_pos = get_solarposition(cs.index, lat, long, altitude=height, pressure=None, method='nrel_numpy', temperature=typ_temp)
 
 
@@ -110,8 +113,8 @@ class Forecaster:
                                                             cs['dni'], cs['ghi'], cs['dhi'], DNI_ET=None, AM=None,
                                                             albedo=0.13, surface_type="grass", model='isotropic',
                                                             model_perez='allsitescomposite1990')
-        poa = total_irrad['poa_global'].to_frame()
-
+        poa = total_irrad['poa_global']*effic*area*scalar
+        poa = poa.to_frame()
         poa['timestamp'] = poa.index
         poa = poa.rename(columns={'poa_global': dev})
         return poa
@@ -164,4 +167,5 @@ class Forecaster:
             self.latest = str(datetime.datetime.now()) +" : "+str(
                 full_df[["system_load", "generated_energy", "consumed_energy"]].tail(1).to_json(orient='records'))
         self.full_df = full_df
+        self.latest_forecast = full_df
         self.data.update_forecast(full_df)

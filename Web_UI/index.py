@@ -9,7 +9,7 @@ import flask_monitoringdashboard as dashboard
 from os.path import dirname
 import os
 
-#Location: /dashboard
+# Location: /dashboard
 
 app = Flask(__name__);
 CORS(app)
@@ -17,7 +17,7 @@ base_dir = dirname(__file__)
 dashboard.config.init_from(file=os.path.join(base_dir, 'dashboard.conf'))
 dashboard.bind(app)
 
-#Docker and Local Run
+# Docker and Local Run
 try:
     with open('runner_config.json') as json_file:
         json_data = json.load(json_file)
@@ -115,6 +115,29 @@ def read_state():
     if avail_energy < 0:
         avail_energy = 0.0
 
+    db_string = """SELECT  SUM(consumed_energy) as consumed, SUM(generated_energy) as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) > date_part('hour',CURRENT_TIME) """
+    ret_fore = db.execute(db_string).fetchall()
+    db_string2 = """SELECT  consumed_energy*(60-date_part('minute',CURRENT_TIME))/60 as consumed, 
+                    generated_energy*(60-date_part('minute',CURRENT_TIME))/60 as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) = date_part('hour',CURRENT_TIME) """
+    ret_fore2 = db.execute(db_string2).fetchall()
+    ret_for_cons_24h = -1
+    ret_for_gen_24h = -1
+    try:
+        ret_for_cons_24h = ret_fore[0][0] / 1000.0
+        ret_for_gen_24h = ret_fore[0][1] / 1000.0
+        ret_for_cons_24h += ret_fore2[0][0] / 1000.0
+        ret_for_gen_24h += ret_fore2[0][1] / 1000.0
+    except ZeroDivisionError:
+        print("Forecasting is null")
+    except ZeroDivisionError:
+        print("Forecasting is null")
+
     resp = {
         "battery state of charge (percentage)": float(ret_soc[0][0]),
         "battery energy available (kwh)": avail_energy,
@@ -124,7 +147,9 @@ def read_state():
         "solar pv energy generation 24h (kwh)": float(ret_24h[0][1]) / 1000.0,
         "solar pv energy generation 30days (kwh)": float(ret_month[0][1]) / 1000.0,
         "energy consumption 24h (kwh)": float(ret_24h[0][0]) / 1000.0,
-        "energy consumption 30days (kwh)": float(ret_month[0][0]) / 1000.0
+        "energy consumption 30days (kwh)": float(ret_month[0][0]) / 1000.0,
+        "forecasted energy consumption 24h (kwh)": ret_for_cons_24h,
+        "forecasted energy generation 24h (kwh)": ret_for_gen_24h,
     }
 
     return Response(json.dumps(resp), 200, content_type='application/json; charset=utf-8')
@@ -141,8 +166,8 @@ def read_state_v2():
         ret_month_2 = round(float(ret_month[0][1]) / 1000.0, 3)
     except TypeError:
         print("Consumption Aggre Null so setting it to -1.0")
-        ret_month_1=-1.0
-        ret_month_2=-1.0
+        ret_month_1 = -1.0
+        ret_month_2 = -1.0
 
     # daily feneration and consumption values
     db_string = """ SELECT SUM(consumed_energy) AS consumed_total, SUM(generated_energy) AS generated_total FROM 
@@ -153,8 +178,8 @@ def read_state_v2():
         ret_24h_2 = round(float(ret_24h[0][1]) / 1000.0, 3)
     except TypeError:
         print("PV Generation Aggre Null so setting it to -1.0")
-        ret_24h_1=-1.0
-        ret_24h_2=-1.0
+        ret_24h_1 = -1.0
+        ret_24h_2 = -1.0
 
     # current PV
     db_string = """ SELECT value FROM """ + sql_table_raw + """ WHERE parameter='VenusGX/Dc/Pv/Power' 
@@ -164,10 +189,10 @@ def read_state_v2():
         pv_gen = round(float(ret_pv[0][0]) / 1000.0, 3)
     except TypeError:
         print("PV Generation Null so setting it to -1.0")
-        pv_gen=-1.
+        pv_gen = -1.
     except IndexError:
         print("PV Generation Null so setting it to -1.0")
-        pv_gen=-1.0
+        pv_gen = -1.0
 
     # current SOC
     db_string = """ SELECT value FROM """ + sql_table_raw + """ WHERE parameter='VenusGX/Dc/Battery/Soc' 
@@ -181,12 +206,12 @@ def read_state_v2():
             avail_energy = 0.0
     except TypeError:
         print("Battery_SoC and Avail Energy Null so setting it to -1.0")
-        bat_soc=-1.0
-        avail_energy=-1.0
+        bat_soc = -1.0
+        avail_energy = -1.0
     except IndexError:
         print("Battery_SoC and Avail Energy Null so setting it to -1.0")
-        bat_soc=-1.0
-        avail_energy=-1.0
+        bat_soc = -1.0
+        avail_energy = -1.0
 
     # current Consumption
     db_string = """ SELECT value FROM """ + sql_table_raw + """ WHERE parameter='VenusGX/Ac/Consumption/L1/Power' 
@@ -196,10 +221,10 @@ def read_state_v2():
         curr_cons = round(float(ret_cons[0][0]) / 1000.0, 3)
     except TypeError:
         print("Consumption Null so setting it to -1.0")
-        curr_cons=-1.0
+        curr_cons = -1.0
     except IndexError:
         print("Consumption Null so setting it to -1.0")
-        curr_cons=-1.0
+        curr_cons = -1.0
 
     # System State - Charging Not Charging
     db_string = """ SELECT value FROM """ + sql_table_raw + """ WHERE parameter='VenusGX/Dc/Battery/Power' 
@@ -211,10 +236,33 @@ def read_state_v2():
             charging = True
     except TypeError:
         print("Charging Null so setting it to -1.0")
-        curr_cons=0.0
+        curr_cons = 0.0
     except IndexError:
         print("Charging Null so setting it to -1.0")
-        curr_cons=0.0
+        curr_cons = 0.0
+
+    db_string = """SELECT  SUM(consumed_energy) as consumed, SUM(generated_energy) as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) > date_part('hour',CURRENT_TIME) """
+    ret_fore = db.execute(db_string).fetchall()
+    db_string2 = """SELECT  consumed_energy*(60-date_part('minute',CURRENT_TIME))/60 as consumed, 
+                    generated_energy*(60-date_part('minute',CURRENT_TIME))/60 as generated FROM forecasted_energy_data
+                    WHERE timestamp > date_trunc('hour', CURRENT_DATE) AND 
+                    timestamp < date_trunc('day', CURRENT_DATE) + INTERVAL '1 DAYS' AND
+                    date_part('hour',timestamp) = date_part('hour',CURRENT_TIME) """
+    ret_fore2 = db.execute(db_string2).fetchall()
+    ret_for_cons_24h = -1
+    ret_for_gen_24h = -1
+    try:
+        ret_for_cons_24h = ret_fore[0][0] / 1000.0
+        ret_for_gen_24h = ret_fore[0][1] / 1000.0
+        ret_for_cons_24h += ret_fore2[0][0] / 1000.0
+        ret_for_gen_24h += ret_fore2[0][1] / 1000.0
+    except ZeroDivisionError:
+        print("Forecasting is null")
+    except ZeroDivisionError:
+        print("Forecasting is null")
 
     resp = {
         "system_state": [  # Format of [Quantity, Unit, Text] where Unit and Text will remain the same
@@ -226,7 +274,9 @@ def read_state_v2():
             [ret_24h_2, "kWh", "solar pv energy generation 24h (kwh)"],
             [ret_month_2, "kWh", "solar pv energy generation 30days (kwh)"],
             [ret_24h_1, "kWh", "energy consumption 24h (kwh)"],
-            [ret_month_1, "kWh", "energy consumption 30days (kwh)"]
+            [ret_month_1, "kWh", "energy consumption 30days (kwh)"],
+            [ret_for_cons_24h, "kWh", "forecasted energy consumption 24h (kwh)"],
+            [ret_for_gen_24h, "kWh", "forecasted energy generation 24h (kwh)"]
         ],
         "priorities": get_priorities()
     }

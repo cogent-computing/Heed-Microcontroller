@@ -22,6 +22,7 @@ The repository comes with a [Makefile](Makefile) that will install all of the py
 
 The variations of the makefile are:
 ```
+deploy_db                      Deploys database to be used
 docker_build                   Building the docker containers that can be used to deploy the microcontroller and interface
 docker_run                     Deploying the docker containers that were built using docker_build. If containers exists will skip.
 docker_run_simulated           Deploying the docker container that has the interface and simualted data for visualisation purposes
