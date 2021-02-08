@@ -1,6 +1,8 @@
 # Heed-Microcontroller
 Repository holding the components of the HEED Controller  that manage the energy consumption on the MicroGrid based on input from the interface.
 
+![architecture-mgrid](docs/interface_example.png "Figure 1 - User Interface")
+
 Main Driver:
 * Forecasting system and Control algorithm needs to be seamlessly replaceable with different iterations (propose an internal messaging system, service based or Redis information share
 
@@ -13,7 +15,7 @@ Control Method:
 
 The overview of hte Microgrid architecture can be seen in the image below. 
 
-![architecture-mgrid](docs/MicrogridControllerArchitecture.png "Figure 1 - Microgrid System Architecture")
+![architecture-mgrid](docs/MicrogridControllerArchitecture.png "Figure 2 - Microgrid System Architecture")
 
 Slides detailing the architecture, concept and methods of the Microgrid Deployment are in the [docs](docs) as [Microgrid_Presentation_Slides.pdf](docs/Microgrid%20Controller%20-%20HEED.pdf).
 
