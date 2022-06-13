@@ -1,5 +1,5 @@
 # Heed-Microcontroller
-Repository holding the components of the HEED Controller  that manage the energy consumption on the MicroGrid based on input from the interface.
+Repository holding the components of the HEED Controller that manages the energy consumption on the MicroGrid based on input from the interface.
 
 ![architecture-mgrid](docs/interface_example.png "Figure 1 - User Interface")
 
@@ -13,7 +13,7 @@ Control Method:
 
 ## Overview
 
-The overview of hte Microgrid architecture can be seen in the image below. 
+The overview of the Microgrid architecture can be seen in the image below.
 
 ![architecture-mgrid](docs/MicrogridControllerArchitecture.png "Figure 2 - Microgrid System Architecture")
 
@@ -27,7 +27,7 @@ The variations of the makefile are:
 deploy_db                      Deploys database to be used
 docker_build                   Building the docker containers that can be used to deploy the microcontroller and interface
 docker_run                     Deploying the docker containers that were built using docker_build. If containers exists will skip.
-docker_run_simulated           Deploying the docker container that has the interface and simualted data for visualisation purposes
+docker_run_simulated           Deploying the docker container that has the interface and simulated data for visualisation purposes
 initialise_db                  Initialising the set database with data
 install                        Install all of the python requirements for running any part of the code
 test                           UnitTests for all the deployment modules
@@ -42,14 +42,14 @@ There are several notebook that allow certain features of the microgrid to be te
 * [Component Examples](notebooks/Component%20Examples.ipynb) showcases how each component of the Microgrid controller is run and what values it pushes to the logs.
 * [Simulation Environment](notebooks/Simulation_Environment_Example.ipynb) showcases how the sample data based simulation environment module works.
 * [Control Algorithm Evaluation](notebooks/Control%20Algorithm%20Evaluation.ipynb) Showcases how the two control methods work and compares their decision at the end.
-* [Device Forecasting SARMIAX](notebooks/Device%20Forecasting%20SARIMAX.ipynb) contains code that was used to find the best parameters and test the SARIMAX based load forcasting.
+* [Device Forecasting SARMIAX](notebooks/Device%20Forecasting%20SARIMAX.ipynb) contains code that was used to find the best parameters and test the SARIMAX based load forecasting.
 * [PV Forecasting](notebooks/PV%20Forecast.ipynb) show how the PV forecasting is done along with comparisons to historic dates. This is based on the python pvlib library and uses a clear sky model.
 * [GA Example](notebooks/GA_Examples.ipynb) contains an example of how to run the GA code.
 
 ## Deployment - Non Docker
-The microgrid controller can be deployed in any environment that has the approriate libraries and python environment. The code also requires the user to set up a PostgreSQL server and add any config parameters into the *runner_config.json* by copying and editing the [runner_config_sample.json](config/runner_config_sample.json).
+The microgrid controller can be deployed in any environment that has the appropriate libraries and python environment. The code also requires the user to set up a PostgreSQL server and add any config parameters into the *runner_config.json* by copying and editing the [runner_config_sample.json](config/runner_config_sample.json).
 
-The main runner is in the [Runner.py](deployment/Runner.py) that deployes the forecasting, aggregation, controll action, local and remote logging. 
+The main runner is in the [Runner.py](deployment/Runner.py) that deploys the forecasting, aggregation, control action, local and remote logging. 
 
 ## Deployment - Docker
 The docker containers can be found under the [docker](docker) directory.
@@ -208,7 +208,7 @@ If a non-English translation is missing, the UI will display the text prefaced b
 
 **Sending priority Changes**
 ----
-  Tells the system if there were any priority changes envolved.
+  Tells the system if there were any priority changes involved.
 
 * **URL**
 
@@ -276,24 +276,20 @@ The initialisation script from [initialise_db.py](initialisation/initialise_db.p
 The script from [populate_historic.py](initialisation/populate_historic.py) will also fill the tables with raw data spanning 24h in the past.
 
 ### Mock Services
-To test the microgrid controller without a real Microgrid, the telnet mock service from [Telnet_Dummy.py](mock_services/Telnet_Dummy.py) can be used to run a telnet server that porvides fake data.
+To test the microgrid controller without a real Microgrid, the telnet mock service from [Telnet_Dummy.py](mock_services/Telnet_Dummy.py) can be used to run a telnet server that provides fake data.
 
 ### Data and testing files
 Sample data from August 2019 can be found in the [data](data) folder as the [microgrid_processed_august.csv](data/microgrid_processed_august.csv) file.
 Test inputs and outputs for the unit testing are in the same folder as [test_input.csv](data/test_input.csv) [test_output.csv](data/test_output.csv).
 
 ### Unit tests
-The unittests can be found under the [test](tests) directory. THe business logic of the deployed code is tested for the [Battery](tests/test_Battery.py), [Control Enactor](tests/test_Control_Enactor.py), [Data Retreiver](tests/test_Data_Retreiver.py) and [Forecaster V2](tests/test_Forecaster_v2.py).
-
-## Related Research and Publications 
-
- - To be followed
+The unittests can be found under the [test](tests) directory. The business logic of the deployed code is tested for the [Battery](tests/test_Battery.py), [Control Enactor](tests/test_Control_Enactor.py), [Data Retriever](tests/test_Data_Retreiver.py) and [Forecaster V2](tests/test_Forecaster_v2.py).
 
 ## Contributors and Development
 
 * WebUI Developed by [Scene](https://scene.communitygithub) and [Iain Hogg](https://github.com/iain-dev)
 * Documentation and support from [MeshPower](https://www.meshpower.co.uk/) on integrating with their system.
-* Microgrid Controller Developed at Coventry University by the Cogentee Group
+* Microgrid Controller Developed at Coventry University by the [AI for Cyberphysical Systems theme](https://www.coventry.ac.uk/research/areas-of-research/computational-science-mathematical-modelling/ai-cyberphysical-systems/) in the [Centre for Computational Science and Mathematical Modelling](https://www.coventry.ac.uk/research/areas-of-research/computational-science-mathematical-modelling/).
 
 ## DOI
 [![DOI](https://zenodo.org/badge/269322811.svg)](https://zenodo.org/badge/latestdoi/269322811)
